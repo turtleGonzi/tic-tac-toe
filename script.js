@@ -77,6 +77,7 @@ const gameboard = (function () {
             alert(`${player.name} WIN`);
             resetBoard()
             player.addPoint()
+            gameFlow.displayPoints();
         } else if (board.toString().replaceAll(',','').length === 9){
             alert('TIE');
         }
@@ -110,6 +111,7 @@ function createPlayer(name, marker) {
     const showPoints = () => {
         return playerPoints;
     }
+
     return {name, marker, addPoint, showPoints}
 }
 
@@ -120,6 +122,7 @@ const player2 = createPlayer('O', 'O');
 function game () {
         gameFlow.playerMove(player1,player2);
         gameFlow.roundTxt(player1);
+        gameFlow.displayPoints();
 }
 
 const gameFlow =( () => {
@@ -140,13 +143,16 @@ const gameFlow =( () => {
                     element.textContent = playerB.marker; 
                     gameboard.updateBoard();
                     gameboard.checkWinner(playerB);
-                    roundTxt(playerA)
+                    roundTxt(playerA);
                     playerToggle = !playerToggle;
                 }
             })
         })
     }
-    return {roundTxt, playerMove}
+    const displayPoints = () => {
+        score.textContent = `${player1.name}: ${player1.showPoints()}|${player2.name}: ${player2.showPoints()}`;
+    }
+    return {roundTxt, playerMove, displayPoints}
 })()
 
 
