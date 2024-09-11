@@ -3,6 +3,8 @@ const title = document.querySelector('.title');
 const displayBoard = document.querySelector('.board');
 const text = document.querySelector('.text');
 const score = document.querySelector('.score');
+const input = document.querySelector('input');
+
 
 
 
@@ -44,6 +46,10 @@ score.style.margin = 'auto;'
 score.style.fontSize = '3rem';
 score.style.textAlign = 'center';
 score.style.fontWeight = 'bold';
+input.style.borderRadius = '3px';
+input.style.width = '100px';
+input.style.height = '33px';
+input.style.fontSize = '1.5rem';
 
 const boxes = [];
 for(let i = 1; i <= 9; i++){
@@ -78,8 +84,11 @@ const gameboard = (function () {
             resetBoard()
             player.addPoint()
             gameFlow.displayPoints();
+            gameFlow.gameRound++;
         } else if (board.toString().replaceAll(',','').length === 9){
             alert('TIE');
+            resetBoard()
+            gameFlow.gameRound++;
         }
     }
 
@@ -98,7 +107,16 @@ const gameboard = (function () {
         });
     }
 
-    return {checkWinner, updateBoard}
+    const btnResetBoard = () => {
+        input.addEventListener("click", () => {
+            resetBoard();
+            player1.resetPoints();
+            player2.resetPoints();
+            gameFlow.displayPoints();
+        })
+    }
+
+    return {checkWinner, updateBoard, resetBoard, btnResetBoard}
 })();
 
 function createPlayer(name, marker) {
@@ -111,28 +129,23 @@ function createPlayer(name, marker) {
     const showPoints = () => {
         return playerPoints;
     }
+    const resetPoints = () => {
+        playerPoints = 0;
+    }
 
-    return {name, marker, addPoint, showPoints}
-}
-
-
-const player1 = createPlayer('X', 'X');
-const player2 = createPlayer('O', 'O');
-
-function game () {
-        gameFlow.playerMove(player1,player2);
-        gameFlow.roundTxt(player1);
-        gameFlow.displayPoints();
+    return {name, marker, addPoint, showPoints, resetPoints}
 }
 
 const gameFlow =( () => {
     const roundTxt = (player) => {
         text.textContent = `Turn: ${player.name}`;
     }
-    let playerToggle = true;
+    let gameRound = 1;
     const playerMove = (playerA, playerB) => {
+        let playerToggle = (gameRound % 2);
         boxes.forEach(element =>{
             element.addEventListener('click', () => {
+                if(element.textContent == ''){
                 if(playerToggle){
                     element.textContent = playerA.marker; 
                     gameboard.updateBoard();
@@ -146,15 +159,28 @@ const gameFlow =( () => {
                     roundTxt(playerA);
                     playerToggle = !playerToggle;
                 }
+            }
             })
         })
     }
     const displayPoints = () => {
         score.textContent = `${player1.name}: ${player1.showPoints()}|${player2.name}: ${player2.showPoints()}`;
     }
-    return {roundTxt, playerMove, displayPoints}
+    const setName = (num) => {
+        return prompt(`Zadej jmeno hrace ${num}`);
+    }
+    return {roundTxt, playerMove, displayPoints, setName, gameRound}
 })()
 
+const player1 = createPlayer(gameFlow.setName(1), 'X');
+const player2 = createPlayer(gameFlow.setName(2), 'O');
+
+function game () {
+        gameFlow.playerMove(player1,player2);
+        gameFlow.roundTxt(player1);
+        gameFlow.displayPoints();
+        gameboard.btnResetBoard();
+}
 
 
 game();
